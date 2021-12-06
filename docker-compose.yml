@@ -1,17 +1,36 @@
-pma:
-  image: phpmyadmin/phpmyadmin
-  container_name: pma-htpasswd
-  environment:
-    PMA_HOST: ip_or_host
+version: "3"
 
-nginx_htpasswd:
-  build: nginx
-  container_name: nginx-htpasswd
-  environment:
-    NGINX_PROXY_HTPASSWD_DOMAIN: pma
-    NGINX_PROXY_HTPASSWD_USERNAME: admin
-    NGINX_PROXY_HTPASSWD_PASSWORD: htpasswd_changeme
-  links:
-    - pma:pma
-  ports:
-    - 3010:8080
+services:
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma-htpasswd
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+    environment:
+      PMA_HOST: ip_or_host
+
+  nginx_htpasswd:
+    build: nginx
+    container_name: nginx-htpasswd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      NGINX_PROXY_HTPASSWD_DOMAIN: pma
+      NGINX_PROXY_HTPASSWD_USERNAME: admin
+      NGINX_PROXY_HTPASSWD_PASSWORD: htpasswd_changeme
+    links:
+      - pma:pma
+    ports:
+      - 3010:8080
